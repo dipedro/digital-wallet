@@ -1,9 +1,9 @@
-import { Controller, Get, HttpStatus, OnModuleInit, Param } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, OnModuleInit, Param, Post } from '@nestjs/common';
 import { Client, ClientKafka, Transport } from '@nestjs/microservices';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import { WalletEvent } from './enums';
-import { FindExtractResponseDto, FindResponseDto } from './wallet.dto';
+import { FindExtractResponseDto, FindResponseDto, MakeTransactionRequestDto } from './wallet.dto';
 
 @ApiTags('Wallet')
 @Controller('wallet')
@@ -45,6 +45,18 @@ export class WalletController implements OnModuleInit {
 	findExtract(@Param('id') walletId: number): Observable<FindExtractResponseDto> {
 		return this.client.send(WalletEvent.FIND_EXTRACT, {
 			walletId,
+		});
+	}
+
+	@Post(':id/transaction')
+	@ApiResponse({ status: HttpStatus.CREATED })
+	createTransaction(
+		@Param('id') walletId: number,
+		@Body() makeTransactionRequestDto: MakeTransactionRequestDto,
+	): Observable<void> {
+		return this.client.send(WalletEvent.MAKE_TRANSACTION, {
+			walletId,
+			...makeTransactionRequestDto
 		});
 	}
 }
