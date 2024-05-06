@@ -16,6 +16,10 @@ export class WalletPgRepository implements IWalletRepository {
 		}
 
 		const { id: walletId, balance } = rows[0];
-		return new WalletEntity(walletId, balance);
+		return new WalletEntity(walletId, Number(balance));
+	}
+
+	async update(id: string, balance: number): Promise<void> {
+		await this.pg.query('UPDATE wallets SET balance = $1 WHERE id = $2', [balance, id]);
 	}
 }
