@@ -21,4 +21,9 @@ export class ExtractPgRepository implements IExtractRepository {
 			return new ExtractEntity(id, wallet_id, type, amount);
 		});
 	}
+
+	async create(data: { walletId: string; operationType: string; amount: number; }): Promise<void> {
+		const { walletId, operationType, amount } = data;
+		await this.pg.query('INSERT INTO extracts(wallet_id, type, amount) VALUES($1, $2, $3)', [walletId, operationType, amount]);
+	}
 }
