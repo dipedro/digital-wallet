@@ -1,11 +1,18 @@
 import { Module } from '@nestjs/common';
 import { WalletPgRepository } from 'src/infra/databases/postgres/repositories/wallet.repository';
-import { WalletService } from './wallet.service';
 import { WalletController } from './wallet.controller';
+import { WalletService } from './wallet.service';
 
 @Module({
 	controllers: [WalletController],
 	providers: [
+		WalletService,
+		{
+			provide: 'IWalletRepository',
+			useClass: WalletPgRepository
+		}
+	],
+	exports: [
 		WalletService,
 		{
 			provide: 'IWalletRepository',
