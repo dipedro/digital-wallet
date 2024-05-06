@@ -1,5 +1,5 @@
 import { Controller, Logger } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { WalletEvent } from './enums';
 import { FindResponseDto } from './extract.dto';
 import { ExtractService } from './extract.service';
@@ -13,9 +13,12 @@ export class ExtractController {
 	@MessagePattern(WalletEvent.FIND_EXTRACT)
 	async find(@Payload() data: { walletId: string}): Promise<FindResponseDto[]> {
 		this.logger.log(`${WalletEvent.FIND_EXTRACT} ${data.walletId}`);
-		const res = await this.extractService.getExtract(data.walletId);
+		const wallet = await this.extractService.getExtract(data.walletId);
 
-		const mapToResponse = res.map((extract) => {
+		if (!wallet)
+			throw new RpcException(`Wallet with ID ${data.walletId} not found`);
+
+		const mapToResponse = wallet.map((extract) => {
 			return {
 				id: extract.id,
 				amount: extract.amount,
@@ -28,6 +31,14 @@ export class ExtractController {
 		this.logger.log(`Response: ${JSON.stringify(mapToResponse)}`);
 
 		return mapToResponse;
+	}
+
+	@MessagePattern(WalletEvent.ADD_TRANSACTION)
+	async create(
+		@Payload() data: { walletId: string; operationType: string; amount: number }
+	) {
+		this.logger.log(`${WalletEvent.ADD_TRANSACTION} ${JSON.stringify(data)}`);
+		await this.extractService.addTransaction(data);
 	}
 	
 }

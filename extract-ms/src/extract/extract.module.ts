@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ExtractPgRepository } from 'src/databases/postgres/repositories/extract.repository';
+import { ExtractPgRepository } from 'src/infra/databases/postgres/repositories/extract.repository';
 import { ExtractController } from './extract.controller';
 import { ExtractService } from './extract.service';
 

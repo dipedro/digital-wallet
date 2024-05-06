@@ -11,4 +11,8 @@ export class ExtractService {
   	async getExtract(id: string) {
 		return this.extractRepository.find(id);
   	}
+
+	async addTransaction(data: { walletId: string; operationType: string; amount: number }) {
+		return this.extractRepository.create(data);
+	}
 }
