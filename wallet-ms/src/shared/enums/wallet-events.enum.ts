@@ -1,4 +1,4 @@
-export enum WalletEvent {
+export const enum WalletEvent {
 	FIND_BALANCE = 'find-balance',
 	MAKE_TRANSACTION = 'make-transaction',
 	ADD_TRANSACTION = 'add-transaction'

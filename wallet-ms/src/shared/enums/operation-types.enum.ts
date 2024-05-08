@@ -1,4 +1,4 @@
-export enum OperationType {
+export const enum OperationType {
 	DEPOSIT = 'deposit',
 	WITHDRAW = 'withdraw',
 	PURCHASE = 'purchase',
