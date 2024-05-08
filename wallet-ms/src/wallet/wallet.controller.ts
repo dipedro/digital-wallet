@@ -1,8 +1,8 @@
 import { Controller, Logger } from "@nestjs/common";
 import { MessagePattern, Payload, RpcException } from "@nestjs/microservices";
-import { WalletEvent } from "./enums";
 import { FindResponseDto } from "./wallet.dto";
 import { WalletService } from "./wallet.service";
+import { WalletEvent } from "src/shared/enums";
 
 @Controller('wallet')
 export class WalletController {
