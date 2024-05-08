@@ -1,5 +1,5 @@
 import { Controller, Logger } from '@nestjs/common';
-import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { WalletEvent } from './enums';
 import { FindResponseDto } from './extract.dto';
 import { ExtractService } from './extract.service';
@@ -33,7 +33,7 @@ export class ExtractController {
 		return mapToResponse;
 	}
 
-	@MessagePattern(WalletEvent.ADD_TRANSACTION)
+	@EventPattern(WalletEvent.ADD_TRANSACTION)
 	async create(
 		@Payload() data: { walletId: string; operationType: string; amount: number }
 	) {
