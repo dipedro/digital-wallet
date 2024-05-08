@@ -2,6 +2,30 @@
 
 This project is a digital wallet application that consists of an API gateway and two microservices: wallet-ms and extract-ms. The API gateway is responsible for routing requests to the appropriate microservice based on the endpoint, while each microservice handles specific functionalities related to the digital wallet.
 
+## Commit Patterns
+
+Commits needs to be semantics and follow the pattern below: 
+
+- `feat`: Used when introducing a new feature or functionality.
+- `fix`: Used when fixing a bug or resolving an issue.
+- `docs`: Used for documentation-related changes.
+- `style`: Used for code style changes, such as formatting, indentation, or whitespace. 
+- `refac`: Used when refactoring code without changing its external behavior.
+- `test`: Used for adding or modifying tests.
+- `chore`: Used for general maintenance tasks or tooling changes.
+- `build`: Used when change build files
+
+## Nomenclature Patterns
+
+| Standard   | Definition             | Example                  |
+| ---------- | ---------------------- | -----------------------  |
+| Directories| LowerCase + Plural     | dtos, services, entities |
+| Files      | Kebab Case + Singular  | transaction.dto.ts       |
+| Entities   | Pascal Case + Singular | WalletEntity             |
+| Tables     | Snake Case + Plural    | wallets                  |
+| Columns    | Snake Case + Singular  | id, walletd              |
+| Enum       | Snake Case + Uppercase | FIND_EXTRACT             |
+
 ## Configuration
 
 Before running the microservices, make sure to fulfill the .env file in each microservice's directory. The .env file should contain environment-specific configurations such as database connection settings, Kafka broker URLs, and any other necessary configurations. An example .env file template is provided in each microservice's directory as .env.example. Rename this file to .env and fill in the required values before starting the microservices.
