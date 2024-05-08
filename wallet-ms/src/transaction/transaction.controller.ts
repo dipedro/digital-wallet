@@ -1,37 +1,19 @@
-import { Controller, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, ClientKafka, MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { WalletEvent } from 'src/wallet/enums';
+import { Controller, Inject, Logger } from '@nestjs/common';
+import { ClientProxy, MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { WalletEvent } from 'src/shared/enums';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TransactionService } from './transaction.service';
 
 @Controller('transaction')
-export class TransactionController implements OnModuleInit {
-	@Client({
-		transport: Transport.KAFKA,
-		options: {
-		  client: {
-			clientId: 'extract',
-			brokers: ['localhost:9092'],
-		  },
-		  consumer: {
-			groupId: 'extract-consumer',
-			allowAutoTopicCreation: true
-		  }
-		}
-	})
-	private clientExtract: ClientKafka;
-
+export class TransactionController {
 	private readonly logger = new Logger(TransactionController.name);
 
 	constructor(
+		@Inject('EXTRACT_MS')
+		private readonly clientExtract: ClientProxy,
 		private readonly walletService: WalletService,
 		private readonly transactionService: TransactionService
 	) {}
-
-	async onModuleInit() {
-		this.clientExtract.subscribeToResponseOf('add-transaction');
-		await this.clientExtract.connect();
-	}
 
 	@MessagePattern(WalletEvent.MAKE_TRANSACTION)
 	async makeTransaction(
@@ -39,6 +21,9 @@ export class TransactionController implements OnModuleInit {
 	) {
 		this.logger.log(`${WalletEvent.MAKE_TRANSACTION} ${JSON.stringify(data)}`);
 		const wallet = await this.walletService.getWallet(data.walletId);
+
+		if (!wallet)
+			throw new RpcException(`Wallet with ID ${data.walletId} not found`);
 
 		await this.transactionService.makeTransaction(wallet, data);
 
