@@ -1,11 +1,11 @@
-import { OperationType } from "src/wallet/enums";
+import { RpcException } from "@nestjs/microservices";
+import { OperationType } from "src/shared/enums";
 import { Transaction, TransactionStrategy } from "../transaction.interface";
 import { CancellationTransactionStrategy } from "./cancellation-transaction.strategy";
 import { ChargebackTransactionStrategy } from "./chargeback-transaction.strategy";
 import { DepositTransactionStrategy } from "./deposit-transaction.strategy";
 import { PurchaseTransactionStrategy } from "./purchase-transaction.strategy";
 import { WithdrawTransactionStrategy } from "./withdraw-transaction.strategy";
-import { RpcException } from "@nestjs/microservices";
 
 export class TransactionFactory {
     private strategies: { [key: string]: TransactionStrategy } = {

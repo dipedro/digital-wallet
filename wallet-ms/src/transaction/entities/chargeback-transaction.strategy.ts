@@ -1,4 +1,4 @@
-import { OperationType } from "src/wallet/enums";
+import { OperationType } from "src/shared/enums";
 import { Transaction, TransactionStrategy } from "../transaction.interface";
 
 export class ChargebackTransactionStrategy implements TransactionStrategy {
