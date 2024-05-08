@@ -6,7 +6,15 @@ describe('TransactionService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TransactionService],
+      providers: [
+        TransactionService,
+        {
+          provide: 'IWalletRepository',
+          useValue: {
+            find: jest.fn(),
+          },
+        }
+      ],
     }).compile();
 
     service = module.get<TransactionService>(TransactionService);
