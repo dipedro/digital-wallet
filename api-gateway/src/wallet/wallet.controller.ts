@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, NotFoundException, OnModuleInit, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpStatus, NotFoundException, OnModuleInit, Param, Post } from '@nestjs/common';
 import { Client, ClientKafka, Transport } from '@nestjs/microservices';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Partitioners } from 'kafkajs';
@@ -14,7 +14,7 @@ export class WalletController implements OnModuleInit {
 		options: {
 			client: {
 				clientId: 'wallet',
-				brokers: ['localhost:9092'],
+				brokers: [process.env.KAFKA_HOST],
 			},
 			consumer: {
 				groupId: 'wallet-consumer',
@@ -32,7 +32,7 @@ export class WalletController implements OnModuleInit {
 		options: {
 			client: {
 				clientId: 'extract',
-				brokers: ['localhost:9092'],
+				brokers: [process.env.KAFKA_HOST],
 			},
 			consumer: {
 				groupId: 'extract-consumer',
@@ -86,6 +86,10 @@ export class WalletController implements OnModuleInit {
 		return this.clientWallet.send(WalletEvent.MAKE_TRANSACTION, {
 			walletId,
 			...makeTransactionRequestDto
-		});
+		}).pipe(
+			catchError((error) => {
+				throw new BadRequestException(error?.message || `Error making transaction`);
+			})
+		);
 	}
 }
