@@ -2,15 +2,26 @@ version: "3.5"
 services:
   zookeeper:
     image: wurstmeister/zookeeper:3.4.6
+    hostname: zookeeper
+    container_name: zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - api-network
   kafka:
     image: wurstmeister/kafka:2.12-2.3.0
+    hostname: kafka
+    container_name: kafka
     ports:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "find-balance:1:1,find-extract:1:1,make-transaction:1:1"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -18,8 +29,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - zookeeper
-  db1:
+    networks:
+        - api-network
+  db:
     image: postgres:14.1-alpine
+    hostname: db
+    container_name: db
     ports:
       - "5432:5432"
     environment:
@@ -27,8 +42,56 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: wallet
     volumes:
-      - ./wallet-ddl.sql:/docker-entrypoint-initdb.d/wallet-ddl.sql
+      - ./wallet.sql:/docker-entrypoint-initdb.d/wallet.sql
+    networks:
+      - api-network
+  wallet_ms:
+    platform: linux/x86_64
+    build: ./wallet-ms
+    restart: always
+    hostname: wallet_ms
+    container_name: wallet_ms
+    env_file:
+      - ./wallet-ms/.env
+    networks:
+      - api-network
+    links:
+      - db
+      - kafka
+    depends_on:
+      - db
+      - kafka
+  extract_ms:
+    platform: linux/x86_64
+    build: ./extract-ms
+    restart: always
+    hostname: extract_ms
+    container_name: extract_ms
+    env_file:
+      - ./extract-ms/.env
+    networks:
+      - api-network
+    links:
+      - db
+      - kafka
+    depends_on:
+      - db
+      - kafka
+  api_gateway:
+    platform: linux/x86_64
+    container_name: api_gateway
+    build: ./api-gateway
+    restart: always
+    hostname: gateway
+    env_file:
+      - ./api-gateway/.env
+    ports:
+      - "3000:3000"
+    networks:
+      - api-network
+    depends_on:
+      - wallet_ms
+      - extract_ms
 networks:
-  default:
+  api-network:
     driver: bridge
-    name: api-network
