@@ -1,8 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNumber, IsOptional, IsUUID, ValidateIf } from "class-validator";
+import { IsEnum, IsNumber, IsUUID, ValidateIf } from "class-validator";
 import { OperationType } from "./enums";
 
 export class FindResponseDto {
+	@ApiProperty({ example: '123' })
+	id: string;
 	@ApiProperty({ example: 100 })
 	balance: number;
 }
@@ -25,7 +27,6 @@ export class MakeTransactionRequestDto {
 
 	@ApiProperty({ example: '123' })
 	@IsUUID()
-	@IsOptional()
 	@ValidateIf((o) => [OperationType.CANCELLATION , OperationType.CHARGEBACK].includes(o.operationType))
 	transactionId?: string | null;
 
