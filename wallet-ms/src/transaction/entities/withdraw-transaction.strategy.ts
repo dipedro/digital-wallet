@@ -1,18 +1,14 @@
 import { RpcException } from "@nestjs/microservices";
-import { OperationType } from "src/shared/enums";
-import { Transaction, TransactionStrategy } from "../transaction.interface";
+import { ITransactionStrategy } from "../interfaces/transaction.interface";
+import { Transaction } from "./transaction.entity";
 
-export class WithdrawTransactionStrategy implements TransactionStrategy {
-    createTransaction(amount: number, balance: number): Transaction {
+export class WithdrawTransactionStrategy implements ITransactionStrategy {
+    execute(transaction: Transaction, balance: number): number {
 
-		if (amount > balance) {
-			throw new RpcException("Insufficient funds");
-		}
+        if (transaction.amount > balance)
+            throw new RpcException("Insufficient funds");
 
-        return {
-			balance: balance - amount,
-            amount,
-            operationType: OperationType.WITHDRAW
-        };
+        const newBalance = balance - transaction.amount;
+        return newBalance;
     }
 }

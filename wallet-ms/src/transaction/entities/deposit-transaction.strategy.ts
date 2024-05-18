@@ -1,12 +1,10 @@
-import { OperationType } from "src/shared/enums";
-import { Transaction, TransactionStrategy } from "../transaction.interface";
+import { ITransactionStrategy } from "../interfaces/transaction.interface";
+import { Transaction } from "./transaction.entity";
 
-export class DepositTransactionStrategy implements TransactionStrategy {
-    createTransaction(amount: number, balance: number): Transaction {
-        return {
-			balance: balance + amount,
-            amount,
-            operationType: OperationType.DEPOSIT
-        };
+export class DepositTransactionStrategy implements ITransactionStrategy {
+
+    execute(transaction: Transaction, balance: number): number {
+        const newBalance = balance + transaction.amount;
+        return newBalance;
     }
 }

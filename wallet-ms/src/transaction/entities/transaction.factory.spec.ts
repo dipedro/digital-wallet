@@ -1,13 +1,9 @@
 import { RpcException } from '@nestjs/microservices';
 import { OperationType } from 'src/shared/enums';
+import { Transaction } from './transaction.entity';
 import { TransactionFactory } from './transaction.factory';
 
 describe('TransactionFactory', () => {
-  let transactionFactory: TransactionFactory;
-
-  beforeEach(() => {
-    transactionFactory = new TransactionFactory();
-  });
 
   describe('createTransaction', () => {
     it('should create a deposit transaction', () => {
@@ -15,10 +11,15 @@ describe('TransactionFactory', () => {
       const amount = 100;
       const balance = 500;
 
-      const transaction = transactionFactory.createTransaction(operationType, amount, balance);
+      const strategy = TransactionFactory.execute(operationType);
+
+      const transaction = new Transaction(operationType, amount);
+      transaction.setStrategy(strategy);
+
+      const newBalance = transaction.makeTransaction(balance);
 
       expect(transaction.amount).toBe(amount);
-      expect(transaction.balance).toBe(amount + balance);
+      expect(newBalance).toBe(amount + balance);
       expect(transaction.operationType).toBe(operationType);
     });
 
@@ -27,10 +28,15 @@ describe('TransactionFactory', () => {
       const amount = 50;
       const balance = 200;
 
-      const transaction = transactionFactory.createTransaction(operationType, amount, balance);
+      const strategy = TransactionFactory.execute(operationType);
+
+      const transaction = new Transaction(operationType, amount);
+      transaction.setStrategy(strategy);
+
+      const newBalance = transaction.makeTransaction(balance);
 
       expect(transaction.amount).toBe(amount);
-      expect(transaction.balance).toBe(balance - amount);
+      expect(newBalance).toBe(balance - amount);
       expect(transaction.operationType).toBe(operationType);
     });
 
@@ -39,10 +45,15 @@ describe('TransactionFactory', () => {
       const amount = 75;
       const balance = 300;
 
-      const transaction = transactionFactory.createTransaction(operationType, amount, balance);
+      const strategy = TransactionFactory.execute(operationType);
+
+      const transaction = new Transaction(operationType, amount);
+      transaction.setStrategy(strategy);
+
+      const newBalance = transaction.makeTransaction(balance);
 
       expect(transaction.amount).toBe(amount);
-      expect(transaction.balance).toBe(balance - amount);
+      expect(newBalance).toBe(balance - amount);
       expect(transaction.operationType).toBe(operationType);
     });
 
@@ -50,11 +61,17 @@ describe('TransactionFactory', () => {
       const operationType = OperationType.CANCELLATION;
       const amount = 25;
       const balance = 150;
+      const transactionId = 'test-transaction-id';
 
-      const transaction = transactionFactory.createTransaction(operationType, amount, balance);
+      const strategy = TransactionFactory.execute(operationType);
+
+      const transaction = new Transaction(operationType, amount, transactionId);
+      transaction.setStrategy(strategy);
+
+      const newBalance = transaction.makeTransaction(balance);
 
       expect(transaction.amount).toBe(amount);
-      expect(transaction.balance).toBe(balance + amount);
+      expect(newBalance).toBe(balance + amount);
       expect(transaction.operationType).toBe(operationType);
     });
 
@@ -62,21 +79,55 @@ describe('TransactionFactory', () => {
       const operationType = OperationType.CHARGEBACK;
       const amount = 200;
       const balance = 1000;
+      const transactionId = 'test-transaction-id';
 
-      const transaction = transactionFactory.createTransaction(operationType, amount, balance);
+      const strategy = TransactionFactory.execute(operationType);
+
+      const transaction = new Transaction(operationType, amount, transactionId);
+      transaction.setStrategy(strategy);
+
+      const newBalance = transaction.makeTransaction(balance);
 
       expect(transaction.amount).toBe(amount);
-      expect(transaction.balance).toBe(balance + amount);
+      expect(newBalance).toBe(balance + amount);
       expect(transaction.operationType).toBe(operationType);
     });
 
-    it('should throw an error for an invalid operation type', () => {
-      const operationType = 'invalid';
-      const amount = 100;
-      const balance = 500;
+    it('should throw an error for missing transaction id when the operation type was CHARGEBACK', () => {
+      const operationType = OperationType.CHARGEBACK;
+      const amount = 200;
+      const balance = 1000;
+
+      const strategy = TransactionFactory.execute(operationType);
+
+      const transaction = new Transaction(operationType, amount);
+      transaction.setStrategy(strategy);
 
       expect(() => {
-        transactionFactory.createTransaction(operationType, amount, balance);
+          transaction.makeTransaction(balance);
+      }).toThrow(RpcException);
+    });
+
+    it('should throw an error for missing transaction id when the operation type was CANCELLATION', () => {
+      const operationType = OperationType.CANCELLATION;
+      const amount = 200;
+      const balance = 1000;
+
+      const strategy = TransactionFactory.execute(operationType);
+
+      const transaction = new Transaction(operationType, amount);
+      transaction.setStrategy(strategy);
+
+      expect(() => {
+          transaction.makeTransaction(balance);
+      }).toThrow(RpcException);
+    });
+
+    it('should throw an error for an invalid operation type', () => {
+      const operationType = 'invalid' as OperationType;
+
+      expect(() => {
+        TransactionFactory.execute(operationType);
       }).toThrow(RpcException);
     });
   });
