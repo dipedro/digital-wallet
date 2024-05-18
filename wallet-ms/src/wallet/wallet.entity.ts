@@ -1,6 +1,9 @@
 export class WalletEntity {
 
-	constructor(readonly id: string, readonly balance: number) {
+	private id?: string;
+	private balance: number;
+
+	constructor(balance: number, id?: string) {
 		this.id = id;
 		this.balance = balance;
 	}
@@ -9,7 +12,15 @@ export class WalletEntity {
 		return this.id;
 	}
 
+	setId(id: string): void {
+		this.id = id;
+	}
+
 	getBalance(): number {
 		return this.balance;
+	}
+
+	setBalance(balance: number): void {
+		this.balance = balance;
 	}
 }
