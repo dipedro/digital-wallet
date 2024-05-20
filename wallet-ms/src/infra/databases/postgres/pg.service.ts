@@ -1,6 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Pool, PoolClient, QueryResult } from 'pg';
-import { ISelectOptions } from 'src/wallet/wallet.repository';
+import { ISelectOptions } from 'src/shared/interfaces';
+
 
 export interface IDBService {
 	getClient(): Promise<PoolClient>;
