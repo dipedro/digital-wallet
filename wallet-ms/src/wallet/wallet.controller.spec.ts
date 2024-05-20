@@ -35,10 +35,27 @@ describe('WalletController', () => {
   });
 
   describe('find', () => {
-    it('should find the wallet balance', async () => {
+    it('should call find the wallet balance with error', async () => {
       const walletId = 'test-wallet-id';
 
-      await controller.find({walletId});
+      expect(controller.find({ walletId })).rejects.toThrow(`Wallet with ID ${walletId} not found`)
+
+      expect(walletService.getWallet).toHaveBeenCalledWith(walletId);
+    });
+
+    it('should find wallet balance with success', async () => {
+      const walletId = 'test-wallet-id';
+
+      const walletMock = {
+        id: walletId,
+        balance: 100
+      };
+
+      jest.spyOn(walletService, 'getWallet').mockResolvedValue(walletMock);
+
+      const result = await controller.find({ walletId });
+
+      expect(result).toEqual(walletMock);
 
       expect(walletService.getWallet).toHaveBeenCalledWith(walletId);
     });
