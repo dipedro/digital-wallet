@@ -15,6 +15,12 @@ describe('TransactionService', () => {
           },
         },
         {
+          provide: 'IDBService',
+          useValue: {
+            transaction: jest.fn(),
+          },
+        },
+        {
           provide: 'EXTRACT_MS',
           useValue: {
             emit: jest.fn(),
