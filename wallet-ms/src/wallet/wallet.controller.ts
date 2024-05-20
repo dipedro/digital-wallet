@@ -1,8 +1,8 @@
 import { Controller, Logger } from "@nestjs/common";
 import { MessagePattern, Payload, RpcException } from "@nestjs/microservices";
+import { WalletEvent } from "src/shared/enums";
 import { FindResponseDto } from "./wallet.dto";
 import { WalletService } from "./wallet.service";
-import { WalletEvent } from "src/shared/enums";
 
 @Controller('wallet')
 export class WalletController {
@@ -19,8 +19,8 @@ export class WalletController {
 			throw new RpcException(`Wallet with ID ${data.walletId} not found`);
 
 		const mapToResponse = {
-			id: wallet.getId(),
-			balance: wallet.getBalance()
+			id: wallet.id,
+			balance: wallet.balance
 		};
 
 		this.logger.log(`Response: ${JSON.stringify(mapToResponse)}`);
