@@ -13,6 +13,12 @@ describe('TransactionService', () => {
           useValue: {
             find: jest.fn(),
           },
+        },
+        {
+          provide: 'EXTRACT_MS',
+          useValue: {
+            emit: jest.fn(),
+          }
         }
       ],
     }).compile();
